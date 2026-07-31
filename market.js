@@ -1,121 +1,132 @@
-// ==================== РЫНОК ====================
-document.addEventListener('DOMContentLoaded', () => {
-    renderMarket();
-});
+// market.js
+import { db, doc, updateDoc, increment, getDoc, collection, getDocs } from './firebase-config.js';
 
-function renderMarket() {
-    const marketList = document.getElementById('market-list');
-    if (!marketList) return;
+const ASSETS = [
+    { id: 'BTC', name: 'Bitcoin', type: 'crypto', icon: '₿', minPrice: 30 },
+    { id: 'ETH', name: 'Ethereum', type: 'crypto', icon: 'Ξ', minPrice: 30 },
+    { id: 'LTC', name: 'Litecoin', type: 'crypto', icon: 'Ł', minPrice: 30 },
+    { id: 'BNB', name: 'Binance Coin', type: 'crypto', icon: '🔶', minPrice: 30 },
+    { id: 'TRX', name: 'Tron', type: 'crypto', icon: '🔴', minPrice: 30 },
+    { id: 'XRP', name: 'Ripple', type: 'crypto', icon: '✕', minPrice: 30 },
+    { id: 'GOLD', name: 'Золото', type: 'metal', icon: '🥇', minPrice: 50 },
+    { id: 'SILVER', name: 'Серебро', type: 'metal', icon: '🥈', minPrice: 50 },
+    { id: 'PLAT', name: 'Платина', type: 'metal', icon: '⬜', minPrice: 50 },
+    { id: 'DIAMOND', name: 'Алмаз', type: 'metal', icon: '💎', minPrice: 50 },
+    { id: 'SAPPHIRE', name: 'Сапфир', type: 'metal', icon: '🔷', minPrice: 50 },
+    { id: 'RUBY', name: 'Рубин', type: 'metal', icon: '🔴', minPrice: 50 }
+];
+
+export async function renderMarket() {
+    const list = document.getElementById('market-list');
+    list.innerHTML = '<p style="text-align:center;">Загрузка рынка...</p>';
+
+    // Получаем текущие цены из Firebase (или инициализируем, если их нет)
+    const marketRef = doc(db, "global", "market_prices");
+    let marketData = {};
+    const snap = await getDoc(marketRef);
     
-    marketList.innerHTML = '';
+    if (snap.exists()) {
+        marketData = snap.data();
+    } else {
+        // Инициализация стартовых цен
+        ASSETS.forEach(asset => {
+            marketData[asset.id] = { price: asset.minPrice, prevPrice: asset.minPrice };
+        });
+        await updateDoc(marketRef, marketData);
+    }
+
+    list.innerHTML = '';
     
-    const currencies = Object.keys(GAME_DATA.marketPrices);
-    
-    currencies.forEach(currency => {
-        const price = GAME_DATA.marketPrices[currency];
-        const balance = GAME_DATA.balances[currency] || 0;
+    // Сортируем: сначала крипта, потом металлы
+    const sortedAssets = [...ASSETS].sort((a, b) => a.type.localeCompare(b.type));
+
+    for (const asset of sortedAssets) {
+        const data = marketData[asset.id] || { price: asset.minPrice, prevPrice: asset.minPrice };
+        const price = data.price;
+        const prevPrice = data.prevPrice;
+        const userBalance = window.userData.balances?.[asset.id] || 0;
         
-        const item = document.createElement('div');
-        item.className = 'market-item';
-        item.innerHTML = `
-            <div class="market-item-info">
-                <div class="market-item-name">${currency}</div>
-                <div class="market-item-price">${price.toFixed(2)} USDT</div>
-                <div style="font-size: 12px; color: #888;">Баланс: ${balance.toFixed(8)}</div>
+        const trend = price > prevPrice ? '🔼' : (price < prevPrice ? '🔽' : '➡️');
+        const trendColor = price > prevPrice ? '#00ff88' : (price < prevPrice ? '#ff4444' : '#B3CFE5');
+
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerHTML = `
+            <div style="flex: 1;">
+                <div style="font-size: 18px; font-weight: bold;">${asset.icon} ${asset.name} <small style="color: #B3CFE5;">(${asset.id})</small></div>
+                <div style="color: ${trendColor}; font-size: 14px;">${trend} ${price.toFixed(2)} USDT</div>
+                <div style="font-size: 12px; color: #B3CFE5;">Твой баланс: ${userBalance.toFixed(6)}</div>
             </div>
-            <div class="market-item-actions">
-                <button class="buy-btn" onclick="buyCrypto('${currency}')">Купить</button>
-                <button class="sell-btn" onclick="sellCrypto('${currency}')">Продать</button>
+            <div style="display: flex; gap: 8px; flex-direction: column;">
+                <button class="btn-primary" style="padding: 8px 15px; font-size: 14px;" onclick="tradeAsset('${asset.id}', 'buy', ${price})">Купить</button>
+                <button class="btn-secondary" style="padding: 8px 15px; font-size: 14px;" onclick="tradeAsset('${asset.id}', 'sell', ${price})">Продать</button>
             </div>
         `;
-        
-        marketList.appendChild(item);
-    });
-}
-
-function buyCrypto(currency) {
-    const price = GAME_DATA.marketPrices[currency];
-    const maxAmount = Math.floor(GAME_DATA.player.usdt / price);
-    
-    const amount = prompt(`Введите количество ${currency} для покупки (максимум ${maxAmount}):`);
-    
-    if (!amount) return;
-    
-    const amountNum = parseFloat(amount);
-    
-    if (isNaN(amountNum) || amountNum <= 0) {
-        showNotification(' Неверное количество', 'error');
-        return;
-    }
-    
-    if (amountNum > maxAmount) {
-        showNotification(' Недостаточно USDT', 'error');
-        return;
-    }
-    
-    const cost = amountNum * price;
-    
-    if (confirm(`Купить ${amountNum.toFixed(8)} ${currency} за ${cost.toFixed(2)} USDT?`)) {
-        GAME_DATA.player.usdt -= cost;
-        GAME_DATA.balances[currency] += amountNum;
-        
-        // Обновляем цену (уменьшаем банк, увеличиваем цену)
-        updateMarketPriceAfterTrade(currency, 'buy', amountNum);
-        
-        showNotification(`✅ Куплено ${amountNum.toFixed(8)} ${currency}`, 'success');
-        saveGame();
-        updateUI();
-        renderMarket();
+        list.appendChild(div);
     }
 }
 
-function sellCrypto(currency) {
-    const balance = GAME_DATA.balances[currency] || 0;
-    const price = GAME_DATA.marketPrices[currency];
+window.tradeAsset = async (assetId, action, currentPrice) => {
+    const amountStr = prompt(`Введите количество ${assetId} для ${action === 'buy' ? 'покупки' : 'продажи'}:`);
+    if (!amountStr) return;
     
-    const amount = prompt(`Введите количество ${currency} для продажи (максимум ${balance.toFixed(8)}):`);
-    
-    if (!amount) return;
-    
-    const amountNum = parseFloat(amount);
-    
-    if (isNaN(amountNum) || amountNum <= 0) {
-        showNotification('❌ Неверное количество', 'error');
-        return;
-    }
-    
-    if (amountNum > balance) {
-        showNotification(' Недостаточно крипты', 'error');
-        return;
-    }
-    
-    const reward = amountNum * price;
-    
-    if (confirm(`Продать ${amountNum.toFixed(8)} ${currency} за ${reward.toFixed(2)} USDT?`)) {
-        GAME_DATA.balances[currency] -= amountNum;
-        GAME_DATA.player.usdt += reward;
-        
-        // Обновляем цену (увеличиваем банк, уменьшаем цену)
-        updateMarketPriceAfterTrade(currency, 'sell', amountNum);
-        
-        showNotification(`✅ Продано ${amountNum.toFixed(8)} ${currency}`, 'success');
-        saveGame();
-        updateUI();
-        renderMarket();
-    }
-}
+    const amount = parseFloat(amountStr.replace(',', '.'));
+    if (isNaN(amount) || amount <= 0) return window.notify("Неверное количество", "error");
 
-function updateMarketPriceAfterTrade(currency, action, amount) {
-    const currentPrice = GAME_DATA.marketPrices[currency];
-    const basePrice = 100.0;
-    const impact = amount * 0.01; // Влияние на цену
-    
-    let newPrice;
+    const totalCost = amount * currentPrice;
+
     if (action === 'buy') {
-        newPrice = currentPrice * (1 + impact);
+        if (window.userData.usdt < totalCost) return window.notify("Недостаточно USDT", "error");
+        
+        // Обновляем баланс пользователя
+        await updateDoc(doc(db, "users", window.currentUser.uid), {
+            usdt: increment(-totalCost),
+            [`balances.${assetId}`]: increment(amount)
+        });
+        
+        // Имитируем изменение цены (покупка повышает цену)
+        await simulatePriceChange(assetId, currentPrice, amount, 'buy');
+        
+        window.userData.usdt -= totalCost;
+        if (!window.userData.balances) window.userData.balances = {};
+        window.userData.balances[assetId] = (window.userData.balances[assetId] || 0) + amount;
+        
+        window.notify(`✅ Куплено ${amount} ${assetId}`, "success");
     } else {
-        newPrice = currentPrice * (1 - impact);
+        const currentBal = window.userData.balances?.[assetId] || 0;
+        if (currentBal < amount) return window.notify(`Недостаточно ${assetId}`, "error");
+
+        await updateDoc(doc(db, "users", window.currentUser.uid), {
+            usdt: increment(totalCost),
+            [`balances.${assetId}`]: increment(-amount)
+        });
+
+        // Имитируем изменение цены (продажа понижает цену)
+        await simulatePriceChange(assetId, currentPrice, amount, 'sell');
+
+        window.userData.usdt += totalCost;
+        window.userData.balances[assetId] -= amount;
+        
+        window.notify(`✅ Продано ${amount} ${assetId}`, "success");
     }
     
-    GAME_DATA.marketPrices[currency] = Math.max(CONFIG.MIN_PRICE, newPrice);
+    window.updateUI();
+    renderMarket();
+};
+
+async function simulatePriceChange(assetId, currentPrice, amount, action) {
+    const marketRef = doc(db, "global", "market_prices");
+    const snap = await getDoc(marketRef);
+    const data = snap.data() || {};
+    
+    const asset = ASSETS.find(a => a.id === assetId);
+    // Влияние на цену: чем больше объем, тем сильнее сдвиг. + случайная волатильность
+    const impact = (amount * 0.01) * (action === 'buy' ? 1 : -1);
+    const volatility = (Math.random() - 0.5) * 0.02; // +/- 1%
+    
+    let newPrice = currentPrice * (1 + impact + volatility);
+    newPrice = Math.max(asset.minPrice, newPrice); // Не ниже стартовой цены
+    
+    data[assetId] = { price: newPrice, prevPrice: currentPrice };
+    await updateDoc(marketRef, data);
 }
