@@ -52,9 +52,9 @@ window.navigateTo = (pageName) => {
             clicker: '🖱 Кликер',
             miner: '⛏ Майнер',
             market: '📊 Рынок',
-            invest: ' Инвестиции',
-            business: ' Бизнесы',
-            bank: ' Банк',
+            invest: '🏢 Инвестиции',
+            business: '🏭 Бизнесы',
+            bank: '🏦 Банк',
             theft: '⚔️ Крипто-Рейд',
             auction: '🔨 Аукционы',
             top: '🏆 Топ',
@@ -304,7 +304,7 @@ document.getElementById('miner-toggle-btn').addEventListener('click', async () =
         window.userData.miner.startTime = null;
         document.getElementById('miner-progress').style.width = '0%';
         document.getElementById('miner-time-left').textContent = '0 мин';
-        document.getElementById('miner-status').textContent = '🔴 Остановлен';
+        document.getElementById('miner-status').textContent = ' Остановлен';
         document.getElementById('miner-toggle-btn').textContent = '▶️ Запустить';
     } else {
         window.userData.miner.running = true;
@@ -361,7 +361,7 @@ async function renderMarket() {
         const prevPrice = data.prevPrice;
         const userBalance = window.userData.balances?.[asset.id] || 0;
         
-        const trend = price > prevPrice ? '🔼' : (price < prevPrice ? '🔽' : '➡️');
+        const trend = price > prevPrice ? '' : (price < prevPrice ? '' : '➡️');
         const trendColor = price > prevPrice ? '#00ff88' : (price < prevPrice ? '#ff4444' : '#B3CFE5');
         
         const div = document.createElement('div');
@@ -424,14 +424,14 @@ window.tradeAsset = async (assetId, action, currentPrice) => {
 
 // ИНВЕСТИЦИИ
 const ENTERPRISES = [
-    { id: 'school', name: 'Школа', icon: '🏫' },
+    { id: 'school', name: 'Школа', icon: '' },
     { id: 'wb', name: 'Wildberries', icon: '🛍️' },
     { id: 'ozon', name: 'Ozon', icon: '📦' },
     { id: 'ai', name: 'AI', icon: '🤖' },
     { id: 'hospital', name: 'Больница', icon: '🏥' },
     { id: 'apple', name: 'Apple', icon: '🍎' },
-    { id: 'samsung', name: 'Samsung', icon: '📱' },
-    { id: 'tesla', name: 'Tesla', icon: '' },
+    { id: 'samsung', name: 'Samsung', icon: '' },
+    { id: 'tesla', name: 'Tesla', icon: '🚗' },
     { id: 'google', name: 'Google', icon: '🔍' },
     { id: 'amazon', name: 'Amazon', icon: '📚' }
 ];
@@ -543,7 +543,7 @@ window.resolveInvestment = async (index) => {
 // БИЗНЕСЫ
 const BUSINESS_TYPES = [
     { id: 'it', name: 'IT-стартап', icon: '💻', cost: 2000, income: 100 },
-    { id: 'restaurant', name: 'Ресторан', icon: '🍽️', cost: 3000, income: 150 },
+    { id: 'restaurant', name: 'Ресторан', icon: '️', cost: 3000, income: 150 },
     { id: 'auto', name: 'Автосервис', icon: '🔧', cost: 2500, income: 120 },
     { id: 'fitness', name: 'Фитнес-клуб', icon: '💪', cost: 4000, income: 200 },
     { id: 'beauty', name: 'Салон красоты', icon: '💇', cost: 3500, income: 180 }
@@ -572,7 +572,7 @@ async function renderBusinesses() {
             <strong>${bizType.icon} ${bizType.name} - ${biz.name}</strong>
             <small>${statusText} | Вложено: ${biz.totalInvested} USDT</small>
             <div style="margin-top:10px; display:flex; gap:10px;">
-                ${biz.isBroken ? `<button class="btn-secondary" onclick="repairBusiness(${index})">🔧 Починить (600)</button>` : ''}
+                ${biz.isBroken ? `<button class="btn-secondary" onclick="repairBusiness(${index})"> Починить (600)</button>` : ''}
                 <button class="btn-secondary" onclick="sellBusiness(${index})">💸 Продать (40%)</button>
             </div>
         `;
@@ -752,7 +752,7 @@ document.getElementById('theft-search-btn').addEventListener('click', async () =
             <button class="btn-secondary" onclick="executeTheft(3, 18, ${victimBalance})">3% (Шанс 18%)</button>
             <button class="btn-secondary" onclick="executeTheft(5, 5, ${victimBalance})">5% (Шанс 5%)</button>
         </div>
-        <button class="btn-small" style="margin-top:15px;" onclick="resetTheftUI()">Отмена</button>
+        <button class="btn-secondary" style="margin-top:15px;" onclick="resetTheftUI()">Отмена</button>
     `;
 });
 
@@ -768,7 +768,7 @@ window.executeTheft = async (percent, chance, victimBal) => {
         const penalty = window.userData.usdt * (percent / 100);
         await updateDoc(doc(db, "users", window.currentUser.uid), { usdt: increment(-penalty) });
         window.userData.usdt -= penalty;
-        window.notify(`❌ Провал! Потеряно ${penalty.toFixed(2)} USDT`, "error");
+        window.notify(` Провал! Потеряно ${penalty.toFixed(2)} USDT`, "error");
     }
     window.updateUI();
     resetTheftUI();
@@ -813,11 +813,11 @@ async function renderAuctions() {
         div.style.flexDirection = 'column';
         div.style.alignItems = 'flex-start';
         div.innerHTML = `
-            <strong>🔒 Крипто-кошелёк #${docSnap.id.substr(0, 6)}</strong>
+            <strong> Крипто-кошелёк #${docSnap.id.substr(0, 6)}</strong>
             <small>Текущая ставка: <b>${data.currentBid.toFixed(2)} USDT</b></small>
             <small>Лидер: ${data.highestBidderNick || 'Нет'}</small>
             <small style="color: #ff4444;">⏳ До конца: ${hoursLeft} ч.</small>
-            <small style="color: #B3CFE5; font-size: 11px;">️ Ставка невозвратна!</small>
+            <small style="color: #B3CFE5; font-size: 11px;">⚠️ Ставка невозвратна!</small>
             <div style="display:flex; gap:10px; margin-top:10px; width:100%;">
                 <input type="number" id="bid-input-${docSnap.id}" placeholder="Ваша ставка" style="flex:1;">
                 <button class="btn-primary" style="width:auto;" onclick="placeBid('${docSnap.id}', ${data.currentBid})">Сделать ставку</button>
