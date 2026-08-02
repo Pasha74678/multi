@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Путь к успеху</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
-    <!-- ЭКРАН АВТОРИЗАЦИИ (Виден по умолчанию) -->
+    <!-- ЭКРАН АВТОРИЗАЦИИ -->
     <div id="auth-screen" class="auth-wrapper">
         <div class="auth-container">
             <div class="auth-header">
@@ -15,16 +16,12 @@
                 <h1>Путь к успеху</h1>
                 <p class="subtitle">Построй свою финансовую империю</p>
             </div>
-
-            <!-- Форма входа -->
             <div id="login-form" class="auth-form">
                 <input type="email" id="login-email" placeholder="Email" autocomplete="email">
                 <input type="password" id="login-password" placeholder="Пароль" autocomplete="current-password">
                 <button class="btn-primary" onclick="login()">Войти в игру</button>
                 <p class="switch-auth" onclick="showRegister()">Нет аккаунта? <span>Создать</span></p>
             </div>
-
-            <!-- Форма регистрации (Скрыта по умолчанию) -->
             <div id="register-form" class="auth-form" style="display: none;">
                 <input type="text" id="reg-nick" placeholder="Придумайте ник (до 20 символов)" maxlength="20">
                 <input type="email" id="reg-email" placeholder="Ваш Email" autocomplete="email">
@@ -33,38 +30,244 @@
                 <button class="btn-primary" onclick="register()">Начать путь</button>
                 <p class="switch-auth" onclick="showLogin()">Уже есть аккаунт? <span>Войти</span></p>
             </div>
-            
             <div id="auth-error" class="error-message"></div>
         </div>
     </div>
 
-    <!-- ЭКРАН ИГРЫ (Скрыт по умолчанию через CSS) -->
-    <div id="game-screen" class="game-wrapper">
-        <header class="header">
-            <div class="logo">🚀 Путь к успеху</div>
-            <div class="balance-display">💰 <span id="usdt-display">0.00</span> USDT</div>
-            <button class="btn-small" onclick="logout()">Выйти</button>
+    <!-- ЭКРАН ИГРЫ -->
+    <div id="game-screen" class="game-wrapper" style="display: none;">
+        <header class="top-bar">
+            <button id="back-btn" class="back-btn" onclick="goHome()" style="display: none;">←</button>
+            <div class="top-bar-title" id="page-title">Главная</div>
+            <div class="top-bar-balance">💰 <span id="usdt-display">0.00</span> USDT</div>
         </header>
 
         <main class="content">
-            <!-- Здесь будут твои вкладки (home, clicker, miner и т.д.) -->
-            <section id="tab-home" class="tab active">
-                <h2>🏠 Главная</h2>
-                <p>Добро пожаловать в игру!</p>
+            <!-- Главная -->
+            <section id="page-home" class="page active">
+                <div class="welcome-text">
+                    <h2>Добро пожаловать, <span id="player-nick">Игрок</span>!</h2>
+                    <p>Выбери раздел для начала игры</p>
+                </div>
+                <div class="grid-menu">
+                    <div class="grid-item" onclick="navigateTo('clicker')">
+                        <div class="grid-icon">🖱</div>
+                        <div class="grid-label">Кликер</div>
+                    </div>
+                    <div class="grid-item" onclick="navigateTo('miner')">
+                        <div class="grid-icon">⛏</div>
+                        <div class="grid-label">Майнер</div>
+                    </div>
+                    <div class="grid-item" onclick="navigateTo('market')">
+                        <div class="grid-icon">📊</div>
+                        <div class="grid-label">Рынок</div>
+                    </div>
+                    <div class="grid-item" onclick="navigateTo('invest')">
+                        <div class="grid-icon">🏢</div>
+                        <div class="grid-label">Инвестиции</div>
+                    </div>
+                    <div class="grid-item" onclick="navigateTo('business')">
+                        <div class="grid-icon">🏭</div>
+                        <div class="grid-label">Бизнесы</div>
+                    </div>
+                    <div class="grid-item" onclick="navigateTo('bank')">
+                        <div class="grid-icon"></div>
+                        <div class="grid-label">Банк</div>
+                    </div>
+                    <div class="grid-item" onclick="navigateTo('theft')">
+                        <div class="grid-icon">⚔️</div>
+                        <div class="grid-label">Крипто-Рейд</div>
+                    </div>
+                    <div class="grid-item" onclick="navigateTo('auction')">
+                        <div class="grid-icon">🔨</div>
+                        <div class="grid-label">Аукционы</div>
+                    </div>
+                    <div class="grid-item" onclick="navigateTo('top')">
+                        <div class="grid-icon">🏆</div>
+                        <div class="grid-label">Топ</div>
+                    </div>
+                    <div class="grid-item" onclick="navigateTo('profile')">
+                        <div class="grid-icon">👤</div>
+                        <div class="grid-label">Профиль</div>
+                    </div>
+                </div>
             </section>
-            <!-- Остальные секции вкладок добавь сюда как раньше -->
-        </main>
 
-        <nav class="bottom-nav">
-            <button class="nav-btn active" onclick="switchTab('home')">🏠</button>
-            <button class="nav-btn" onclick="switchTab('clicker')">🖱</button>
-            <button class="nav-btn" onclick="switchTab('top')">🏆</button>
-            <!-- Добавь остальные кнопки навигации -->
-        </nav>
+            <!-- Кликер -->
+            <section id="page-clicker" class="page">
+                <div class="page-content">
+                    <h2>🖱 Кликер</h2>
+                    <select id="clicker-currency" class="select-input">
+                        <option value="BTC">BTC</option>
+                        <option value="ETH">ETH</option>
+                        <option value="LTC">LTC</option>
+                        <option value="BNB">BNB</option>
+                        <option value="TRX">TRX</option>
+                        <option value="XRP">XRP</option>
+                    </select>
+                    <div class="clicker-area">
+                        <button id="click-btn" class="click-button">
+                            <div class="click-icon">👆</div>
+                            <div class="click-text">КЛИК</div>
+                        </button>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="stat-value" id="click-power">100</div>
+                            <div class="stat-label">Мощность</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="click-mult">1.0</div>
+                            <div class="stat-label">Множитель</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="clicker-stamina">100/100</div>
+                            <div class="stat-label">Стамина</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Майнер -->
+            <section id="page-miner" class="page">
+                <div class="page-content">
+                    <h2>⛏ Майнер</h2>
+                    <select id="miner-currency" class="select-input">
+                        <option value="BTC">BTC</option>
+                        <option value="ETH">ETH</option>
+                        <option value="LTC">LTC</option>
+                    </select>
+                    <div class="miner-card">
+                        <div class="miner-status" id="miner-status"> Остановлен</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="miner-progress" style="width: 0%"></div>
+                        </div>
+                        <p>Осталось: <span id="miner-time-left">0 мин</span></p>
+                    </div>
+                    <button id="miner-toggle-btn" class="btn-primary">▶️ Запустить</button>
+                </div>
+            </section>
+
+            <!-- Рынок -->
+            <section id="page-market" class="page">
+                <div class="page-content">
+                    <h2>📊 Рынок</h2>
+                    <div id="market-list" class="list-container"></div>
+                </div>
+            </section>
+
+            <!-- Инвестиции -->
+            <section id="page-invest" class="page">
+                <div class="page-content">
+                    <h2>🏢 Инвестиции</h2>
+                    <p class="info-text">Ротация каждые 3 дня в 00:00. Итог через 18 часов.</p>
+                    <div id="investments-list" class="list-container"></div>
+                    <h3 style="margin-top: 20px;">Мои активные</h3>
+                    <div id="active-investments-list" class="list-container"></div>
+                </div>
+            </section>
+
+            <!-- Бизнесы -->
+            <section id="page-business" class="page">
+                <div class="page-content">
+                    <h2>🏭 Мои бизнесы (Макс. 2)</h2>
+                    <button id="create-business-btn" class="btn-primary"> Создать бизнес</button>
+                    <div id="businesses-list" class="list-container"></div>
+                </div>
+            </section>
+
+            <!-- Банк -->
+            <section id="page-bank" class="page">
+                <div class="page-content">
+                    <h2>🏦 Банк</h2>
+                    <div class="bank-card">
+                        <div class="bank-row">
+                            <span>Депозит:</span>
+                            <span id="bank-deposit">0.00 USDT</span>
+                        </div>
+                        <div class="bank-row">
+                            <span>Кредит:</span>
+                            <span id="bank-loan">0.00 USDT</span>
+                        </div>
+                    </div>
+                    <div class="actions-grid">
+                        <button class="btn-secondary" onclick="bankAction('deposit')">💰 Вложить 100</button>
+                        <button class="btn-secondary" onclick="bankAction('withdraw')">💵 Забрать</button>
+                        <button class="btn-secondary" onclick="bankAction('loan')">💳 Кредит 1000</button>
+                        <button class="btn-secondary" onclick="bankAction('payLoan')">💸 Погасить</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Кража -->
+            <section id="page-theft" class="page">
+                <div class="page-content">
+                    <h2>⚔️ Крипто-Рейд</h2>
+                    <div id="theft-ui">
+                        <button id="theft-search-btn" class="btn-primary">🔍 Искать жертву (10 USDT)</button>
+                        <div id="theft-animation" style="display:none; text-align:center; padding: 20px;">
+                            <div class="spinner"></div>
+                            <p id="theft-status-text">Сканирование сети...</p>
+                        </div>
+                        <div id="theft-result" style="display:none;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Аукционы -->
+            <section id="page-auction" class="page">
+                <div class="page-content">
+                    <h2>🔨 Аукционы</h2>
+                    <div id="auction-list" class="list-container"></div>
+                </div>
+            </section>
+
+            <!-- Топ -->
+            <section id="page-top" class="page">
+                <div class="page-content">
+                    <h2>🏆 Топ</h2>
+                    <div class="top-toggle-container">
+                        <button class="top-toggle-btn active" id="btn-players" onclick="switchTop('players')">Игроки</button>
+                        <div class="top-toggle-divider"></div>
+                        <button class="top-toggle-btn" id="btn-clans" onclick="switchTop('clans')">Кланы</button>
+                    </div>
+                    <div id="top-players-list" class="top-list active"></div>
+                    <div id="top-clans-list" class="top-list"></div>
+                </div>
+            </section>
+
+            <!-- Профиль -->
+            <section id="page-profile" class="page">
+                <div class="page-content">
+                    <h2>👤 Профиль</h2>
+                    <div class="profile-card">
+                        <div class="profile-row">
+                            <span>Ник:</span>
+                            <span id="profile-nick">-</span>
+                        </div>
+                        <div class="profile-row">
+                            <span>Уровень:</span>
+                            <span id="profile-level">0</span>
+                        </div>
+                        <div class="profile-row">
+                            <span>USDT:</span>
+                            <span id="profile-usdt">0.00</span>
+                        </div>
+                    </div>
+                    <button class="btn-secondary" onclick="logout()">🚪 Выйти из аккаунта</button>
+                </div>
+            </section>
+        </main>
     </div>
 
-    <!-- Подключение скриптов -->
-    <script type="module" src="firebase-config.js"></script>
+    <!-- Модальное окно -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
     <script type="module" src="app.js"></script>
 </body>
 </html>
