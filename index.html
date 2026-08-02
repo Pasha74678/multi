@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Путь к успеху</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <!-- ЭКРАН АВТОРИЗАЦИИ -->
@@ -63,7 +62,7 @@
                         <div class="grid-label">Рынок</div>
                     </div>
                     <div class="grid-item" onclick="navigateTo('invest')">
-                        <div class="grid-icon">🏢</div>
+                        <div class="grid-icon"></div>
                         <div class="grid-label">Инвестиции</div>
                     </div>
                     <div class="grid-item" onclick="navigateTo('business')">
@@ -71,7 +70,7 @@
                         <div class="grid-label">Бизнесы</div>
                     </div>
                     <div class="grid-item" onclick="navigateTo('bank')">
-                        <div class="grid-icon"></div>
+                        <div class="grid-icon">🏦</div>
                         <div class="grid-label">Банк</div>
                     </div>
                     <div class="grid-item" onclick="navigateTo('theft')">
@@ -87,7 +86,7 @@
                         <div class="grid-label">Топ</div>
                     </div>
                     <div class="grid-item" onclick="navigateTo('profile')">
-                        <div class="grid-icon">👤</div>
+                        <div class="grid-icon"></div>
                         <div class="grid-label">Профиль</div>
                     </div>
                 </div>
@@ -96,7 +95,7 @@
             <!-- Кликер -->
             <section id="page-clicker" class="page">
                 <div class="page-content">
-                    <h2>🖱 Кликер</h2>
+                    <h2> Кликер</h2>
                     <select id="clicker-currency" class="select-input">
                         <option value="BTC">BTC</option>
                         <option value="ETH">ETH</option>
@@ -107,7 +106,7 @@
                     </select>
                     <div class="clicker-area">
                         <button id="click-btn" class="click-button">
-                            <div class="click-icon">👆</div>
+                            <div class="click-icon"></div>
                             <div class="click-text">КЛИК</div>
                         </button>
                     </div>
@@ -138,7 +137,7 @@
                         <option value="LTC">LTC</option>
                     </select>
                     <div class="miner-card">
-                        <div class="miner-status" id="miner-status"> Остановлен</div>
+                        <div class="miner-status" id="miner-status">🔴 Остановлен</div>
                         <div class="progress-bar">
                             <div class="progress-fill" id="miner-progress" style="width: 0%"></div>
                         </div>
@@ -162,7 +161,7 @@
                     <h2>🏢 Инвестиции</h2>
                     <p class="info-text">Ротация каждые 3 дня в 00:00. Итог через 18 часов.</p>
                     <div id="investments-list" class="list-container"></div>
-                    <h3 style="margin-top: 20px;">Мои активные</h3>
+                    <h3 style="margin-top: 20px; color: var(--text-primary);">Мои активные</h3>
                     <div id="active-investments-list" class="list-container"></div>
                 </div>
             </section>
@@ -171,7 +170,7 @@
             <section id="page-business" class="page">
                 <div class="page-content">
                     <h2>🏭 Мои бизнесы (Макс. 2)</h2>
-                    <button id="create-business-btn" class="btn-primary"> Создать бизнес</button>
+                    <button id="create-business-btn" class="btn-primary">🏗 Создать бизнес</button>
                     <div id="businesses-list" class="list-container"></div>
                 </div>
             </section>
@@ -254,7 +253,7 @@
                             <span id="profile-usdt">0.00</span>
                         </div>
                     </div>
-                    <button class="btn-secondary" onclick="logout()">🚪 Выйти из аккаунта</button>
+                    <button class="btn-secondary" onclick="logout()"> Выйти из аккаунта</button>
                 </div>
             </section>
         </main>
